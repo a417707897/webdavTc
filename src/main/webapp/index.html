@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>超简图床</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="https://lib.baomitu.com/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+
+    <!-- Custom styles for this template -->
+    <link href="cover.css" rel="stylesheet">
+
+</head>
+
+<body style="overflow: hidden;">
+<div style="position: absolute;top: 0;left: 0;right: 0;bottom: 0; z-index: 99999;">
+    <div class="site-wrapper">
+
+        <div class="site-wrapper-inner">
+
+            <div class="cover-container">
+
+                <div class="inner cover">
+                    <h1 class="cover-heading">轻量级图床程序</h1>
+                    <p class="lead">
+                        本套图床程序由妖火第一搬运工提供，一键搭建，简单调用！</p>
+                    <p class="lead">
+                    <form>
+                        <div class="form-group">
+                            <label class="sr-only">选择图片</label>
+                            <div class="input-group">
+                                <div class="input-group-addon">选择图片</div>
+                                <input type="file" class="form-control" onchange="getBase64()" id="imgfile" value="后台设置的通讯密钥">
+                            </div>
+                        </div>
+                        <br>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">结果</div>
+                                <input type="text" class="form-control" id="resultUrl" readonly value="">
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-lg btn-default" onclick="doTest()">上传图片</button>
+                        <button type="button" class="btn btn-lg btn-default" onclick="copyResult()">复制结果</button>
+                    </form>
+                    </p>
+                </div>
+
+
+                <div class="mastfoot">
+                    <div class="inner">
+                        <p>本网站由EMM提供服务, Copyright © 2022</p>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+</div>
+
+<div id="bj" style="position: absolute;top: 0;left: 0;right: 0;bottom: 0;"></div>
+<!-- Bootstrap core JavaScript
+================================================== -->
+<!-- Placed at the end of the document so the pages load faster -->
+<script src="https://lib.baomitu.com/jquery/3.3.1/jquery.min.js"></script>
+<script src="https://lib.baomitu.com/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+<script src="particles.js"></script>
+
+<script>
+
+    function copyResult() {
+        var oContent=document.getElementById("resultUrl");
+
+        oContent.select(); // 选择对象
+
+        document.execCommand("Copy"); // 执行浏览器复制命令
+
+        alert("复制完毕，可粘贴");
+
+    }
+
+    function getBase64() {
+        var file = document.getElementById('imgfile').files[0];
+        if(!/image\/\w+/.test(file.type)){
+            alert("文件类型错误，必须为图片！");
+            return false;
+        }
+        formdata = new FormData($('imgfile').get(0));
+        formdata.append("file", file);
+        $("#resultUrl").val("");
+    }
+
+    function doTest() {
+        var url = "http://"+window.location.host+'/put'
+        $.ajax({
+            url: url,
+            type: 'POST',
+            data: formdata,
+            processData: false,
+            contentType: false,
+            success: function(res) {
+                console.log(res)
+                if (res.result === '0') {
+                    $("#resultUrl").val(res.url);
+                } else {
+                    $("#resultUrl").val("上传失败");
+                }
+            },
+            error: function (res) {
+                $("#resultUrl").val("上传失败");
+            }
+        });
+    }
+
+    function fileChange(file) {
+        let reader = new FileReader();
+        let rs = reader.readAsArrayBuffer(file);
+         let blob = null;
+        reader.onload = (e) => {
+            if (typeof e.target.result === 'object') {
+                blob = new Blob([e.target.result])
+            } else {
+                blob = e.target.result
+            }
+
+        }
+    }
+
+
+
+    particlesJS('bj',
+
+        {
+            "particles": {
+                "number": {
+                    "value": 50,
+                    "density": {
+                        "enable": true,
+                        "value_area": 1000
+                    }
+                },
+                "color": {
+                    "value": "#ffffff"
+                },
+                "shape": {
+                    "type": "circle",
+                    "stroke": {
+                        "width": 0,
+                        "color": "#000000"
+                    },
+                    "polygon": {
+                        "nb_sides": 5
+                    },
+                    "image": {
+                        "src": "img/github.svg",
+                        "width": 100,
+                        "height": 100
+                    }
+                },
+                "opacity": {
+                    "value": 0.5,
+                    "random": false,
+                    "anim": {
+                        "enable": false,
+                        "speed": 1,
+                        "opacity_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "size": {
+                    "value": 5,
+                    "random": true,
+                    "anim": {
+                        "enable": false,
+                        "speed": 40,
+                        "size_min": 0.1,
+                        "sync": false
+                    }
+                },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#ffffff",
+                    "opacity": 0.4,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 6,
+                    "direction": "none",
+                    "random": false,
+                    "straight": false,
+                    "out_mode": "out",
+                    "attract": {
+                        "enable": false,
+                        "rotateX": 600,
+                        "rotateY": 1200
+                    }
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": {
+                        "enable": false,
+                        "mode": "grab"
+                    },
+                    "onclick": {
+                        "enable": true,
+                        "mode": "push"
+                    },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": {
+                        "distance": 400,
+                        "line_linked": {
+                            "opacity": 1
+                        }
+                    },
+                    "bubble": {
+                        "distance": 400,
+                        "size": 40,
+                        "duration": 2,
+                        "opacity": 8,
+                        "speed": 3
+                    },
+                    "repulse": {
+                        "distance": 200
+                    },
+                    "push": {
+                        "particles_nb": 4
+                    },
+                    "remove": {
+                        "particles_nb": 2
+                    }
+                }
+            },
+            "retina_detect": true,
+            "config_demo": {
+                "hide_card": false,
+                "background_color": "#b61924",
+                "background_image": "",
+                "background_position": "50% 50%",
+                "background_repeat": "no-repeat",
+                "background_size": "cover"
+            }
+        }
+    );
+
+</script>
+
+</body>
+</html>
