@@ -47,8 +47,18 @@
                                 <input type="text" class="form-control" id="resultUrl" readonly value="">
                             </div>
                         </div>
+                        <div class="form-group">
+                            <div class="input-group">
+                                <div class="input-group-addon">Img结果</div>
+                                <input type="text" class="form-control" id="resultUrlImg" readonly value="">
+                            </div>
+                        </div>
+                       <div class="form-group">
+                            <div id="fill"></div>
+                       </div>
                         <button type="button" class="btn btn-lg btn-default" onclick="doTest()">上传图片</button>
                         <button type="button" class="btn btn-lg btn-default" onclick="copyResult()">复制结果</button>
+                        <button type="button" class="btn btn-lg btn-default" onclick="copyResult1()">复制Img结果</button>
                     </form>
                     </p>
                 </div>
@@ -90,8 +100,54 @@
 
     }
 
+    function copyResult1() {
+        var oContent=document.getElementById("resultUrlImg");
+
+        oContent.select(); // 选择对象
+
+        document.execCommand("Copy"); // 执行浏览器复制命令
+
+        alert("复制完毕，可粘贴");
+
+    }
+
+    function clearInputFile(f) {
+        try{
+            f.value = '';
+            if(f.value){
+                f.type = "text";
+                f.type = "file";
+            }
+        }catch(e){}
+    };
+
+    function openProgressBar() {
+        var progressbar = {
+            init: function() {
+                var fill = document.getElementById("fill");
+                var count = 0;
+                var timer = setInterval(() => {
+                    if (fill.innerHTML==='上传完成' || fill.innerHTML==='上传失败') {
+                        clearInterval(timer)
+                    }else {
+                        count++;
+                        fill.innerHTML=count + '%';
+                        if(count===100){
+                            fill.innerHTML= '上传中';
+                            clearInterval(timer)
+                        }
+                    }
+                }, 17);
+            }
+
+        };
+        progressbar.init();
+        return progressbar
+    }
+
     function getBase64() {
         var file = document.getElementById('imgfile').files[0];
+        console.log(file==null)
         if(!/image\/\w+/.test(file.type)){
             alert("文件类型错误，必须为图片！");
             return false;
@@ -99,10 +155,21 @@
         formdata = new FormData($('imgfile').get(0));
         formdata.append("file", file);
         $("#resultUrl").val("");
+        $("#resultUrlImg").val("");
+        document.getElementById("fill").innerHTML=""
+        //隐藏标签
+        document.getElementById("fill").style.visibility="hidden";
     }
 
     function doTest() {
+        if (document.getElementById('imgfile').files[0] == null) {
+            alert("请选择文件")
+            return
+        }
         var url = "http://"+window.location.host+'/put'
+        openProgressBar();
+        document.getElementById("fill").style.visibility="visible";
+        document.getElementById("fill").innerHTML=""
         $.ajax({
             url: url,
             type: 'POST',
@@ -113,12 +180,18 @@
                 console.log(res)
                 if (res.result === '0') {
                     $("#resultUrl").val(res.url);
+                    $("#resultUrlImg").val('[img]'+res.url+'[/img]');
+                    document.getElementById("fill").innerHTML="上传完成"
                 } else {
                     $("#resultUrl").val("上传失败");
+                    $("#resultUrlImg").val("上传失败");
+                    document.getElementById("fill").innerHTML="上传失败"
                 }
             },
             error: function (res) {
                 $("#resultUrl").val("上传失败");
+                $("#resultUrlImg").val("上传失败");
+                document.getElementById("fill").innerHTML="上传失败"
             }
         });
     }
